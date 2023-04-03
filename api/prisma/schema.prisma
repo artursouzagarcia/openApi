@@ -1,0 +1,60 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model Usuario {
+    id    Int     @default(autoincrement()) @id
+    email String  @unique
+    nome  String?    
+    agendamentos Agendamento[] @relation("autorId")
+}
+
+model Paciente {
+    id      Int     @default(autoincrement()) @id
+    email   String  @unique
+    cpf     String @unique
+    nome    String 
+    idade   DateTime
+    celular String
+    agendamentos Agendamento[] @relation("vinculadoAId")
+}
+
+model Agendamento {
+    id            Int                 @default(autoincrement()) @id
+    descricao     String?
+    vinculadoA    Paciente            @relation(name: "vinculadoAId", fields: [vinculadoAId], references: [id])
+    vinculadoAId  Int
+    autor         Usuario             @relation(name: "autorId", fields: [autorId], references: [id])
+    autorId       Int
+    inicio        DateTime    
+    final         DateTime    
+    criadoEm      DateTime            @default(now())
+    status        Status              @relation( fields: [statusId], references: [id])
+    statusId      Int
+    chegada       DateTime?
+    saiu          DateTime?
+    procedimento  Procedimento?      @relation( fields: [procedimentoId], references: [id])
+    procedimentoId  Int?
+}
+
+model  Status{
+    id      Int         @default(autoincrement()) @id
+    nome    String
+    agendamentos Agendamento[]
+}
+
+model  Procedimento{
+    id      Int         @default(autoincrement()) @id
+    nome    String    
+    valor   Decimal
+    agendamentos Agendamento[]
+}
